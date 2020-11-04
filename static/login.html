@@ -51,16 +51,16 @@
             http.open('POST', url, true)
             http.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
             http.onloadend = function(){
-                console.log(http.getAllResponseHeaders().toLowerCase())
                 var token = http.getResponseHeader("Authorization")
                 if (token !== null){
-                    console.log(token)
+                    window.localStorage.setItem("Authorization", token)
+                    window.localStorage.setItem("email", email)
+                    window.location.href = "./index.html"
                 }else{
                     console.log("token is null")
                 }
             }
-            localStorage.setItem("token", http.getResponseHeader("Authorization"))
-            console.log(localStorage.token)
+
             http.send(JSON.stringify(data))
         }
 
