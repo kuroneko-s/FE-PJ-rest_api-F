@@ -60,7 +60,8 @@
                     console.log("token is null")
                 }
             }
-
+            localStorage.setItem("token", http.getResponseHeader("Authorization"))
+            console.log(localStorage.token)
             http.send(JSON.stringify(data))
         }
 
