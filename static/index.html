@@ -80,25 +80,30 @@
       var JWT = window.localStorage.getItem("Authorization")
       if (JWT != null){
         $("ul.logins-hide").hide()
+        var username = window.localStorage.getItem("username")
+        if(username === null){
+          var http = new XMLHttpRequest();
+          var url = "http://localhost:8080/accounts"
+          var data = window.localStorage.getItem("email")
 
-        var http = new XMLHttpRequest();
-        var url = "http://localhost:8080/accounts"
-        var data = window.localStorage.getItem("email")
-
-        http.open("GET", url + "?" + "email=" + data, true)
-        http.setRequestHeader("Accept", "application/json")
-        http.onloadend = function() {
-          var jsonBody = http.response
-          var jsonObj = JSON.parse(jsonBody)
-          // console.log(jsonObj.username)
-          $("#inner-Text-profile").text(jsonObj.username)
+          http.open("GET", url + "?" + "email=" + data, true)
+          http.setRequestHeader("Accept", "application/json")
+          http.onloadend = function() {
+            var jsonBody = http.response
+            var jsonObj = JSON.parse(jsonBody)
+            // console.log(jsonObj.username)
+            window.localStorage.setItem("username", jsonObj.username)
+            $("#inner-Text-profile").text(jsonObj.username)
+          }
+          http.send(null)
+        }else{
+          $("#inner-Text-profile").text(username)
         }
-        http.send(null)
       }else{
         $("ul.nonLogins-hide").hide()
       }
     })
-
+    
     //get Communit
     window.onload = function () {
       var http = new XMLHttpRequest();
@@ -107,7 +112,6 @@
       http.setRequestHeader("Accept", "application/HAL+JSON")
       http.onloadend = function(){
         if (http.response != null){
-          //community-box 안에 community title이랑 p, a값들이 들어가야함.
           var jsonObj = JSON.parse(http.response) //JSON Parsing
           var community_cnt = jsonObj.testDTO.length
           var community_box = document.querySelector('.community-box')
@@ -118,64 +122,50 @@
             var strong = document.createElement('strong')
             strong.classList.add('community-title', 'text-center', 'text-success', 'd-inline-block', 'mb-1', 'p-1')
             var communityMiniDTO = community.communityMiniDTO
-
-            // console.log("1 - " + communityMiniDTO[0].communityId)
-            // console.log("2 - " + communityMiniDTO[0].communityTitle)
-
             strong.textContent = communityMiniDTO[0].communityTitle
             div.appendChild(strong)
-
             var innerDiv = document.createElement('div')
             innerDiv.classList.add('d-flex')
             var community_Articles = document.createElement('div')
             community_Articles.classList.add('community-articles', 'col')
-            
-            // console.log("articleMIniDTO length - " + community.articleMiniDTO.length)
+
             for(var j =0; j<community.articleMiniDTO.length; j++){
               var articleMiniDTO = community.articleMiniDTO[j]
-              // console.log(
-              //   "awrticleMiniDTO - " + articleMiniDTO.articleId + ", " + articleMiniDTO.articleTitle + ", " + articleMiniDTO.commentsCount
-              // )
-              var article_span = document.createElement('span')
+              var article_p = document.createElement('p')
               var article_a = document.createElement('a')
               article_a.classList.add('mb-0', 'article-title')
-              article_a.href = "localhost:8080/community/" 
-                  + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId
-              var article_p = document.createElement('p')
-              article_p.classList.add('mb-1', 'article-title-p')
-              article_p.textContent = articleMiniDTO.articleTitle
-              article_a.appendChild(article_p)
-              // console.log("add Child" + j)
-              article_span.appendChild(article_a)
-              community_Articles.appendChild(article_span)
+              article_a.setAttribute('onclick', 'saveURLInStorage(this)')
+              article_a.href = "./showArticle.html"
+              article_a.setAttribute('URL', "localhost:8080/community/" + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId)
+              article_a.textContent = articleMiniDTO.articleTitle + "  "
+              var cnt_span = document.createElement('span')
+              cnt_span.classList.add('mb-2', 'article-count-p')
+              cnt_span.textContent = "[" + articleMiniDTO.commentsCount + "]"
+              cnt_span.style.color = "blue"
+              article_a.appendChild(cnt_span)
+              article_p.appendChild(article_a)
+              community_Articles.appendChild(article_p)
             }
 
             innerDiv.appendChild(community_Articles)
             div.appendChild(innerDiv)
             community_box.appendChild(div)
           }
-
-          // console.log(community_1)
-          // console.log(community_1.articleMiniDTO)
-          // console.log(community_2)
         }else{
           console.log("communies is null")
         }
       }
 
       http.send(null)
-      
-      //create Article Titles
-      // var div = document.querySelector('.community-articles')
-      // var articleTitle = document.createElement('a')
-      // articleTitle.classList.add('mb-0', 'article-title')
-      // articleTitle.href = "Article의 ID를 이용한 URL 값"
-      // var articleP = document.createElement('p')
-      // articleP.classList.add('mb-1', 'article-title-p')
-      // articleP.innerText = 'testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest'
-      // articleTitle.appendChild(articleP)
-  
-      // $('.community-articles').append(articleTitle)
+    }
+
+    function saveURLInStorage(a){
+      var URL = window.localStorage.getItem("URL")
+      if(URL != null){
+        window.localStorage.removeItem("URL")
+      }
+
+      window.localStorage.setItem("URL", a.getAttribute("url"))
     }
 
     // Article 제목 크기의 동적 처리
