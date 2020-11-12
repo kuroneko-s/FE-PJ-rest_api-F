@@ -2,6 +2,22 @@
     font-size: 0.75rem;
 }
 
-#article-comment{
-    padding-left: 15px;
+.article-comment{
+    border: 0.5px solid gray;
+}
+
+
+.footer {
+    align-items: center;
+    background-color: #f5f5f5;
+    width: 100%;
+    height: auto;
+    position: static;
+    bottom: 0;
+    text-align: center;
+    right: 2rem;
+}
+
+.form-btn{
+    cursor: pointer;
 }
