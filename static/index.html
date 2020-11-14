@@ -115,17 +115,29 @@
           var jsonObj = JSON.parse(http.response) //JSON Parsing
           var community_cnt = jsonObj.testDTO.length
           var community_box = document.querySelector('.community-box')
-          for(var i = 0; i < jsonObj.testDTO.length; i++){
+          for(var i = jsonObj.testDTO.length - 1; i >= 0 ; i--){
             var community = jsonObj.testDTO[i]
+            var communityMiniDTO = community.communityMiniDTO
             var div = document.createElement('div')
             div.classList.add('col-md-6','p-2','d-flex','flex-column', 'position-static', 'shadow', 'community')
+            
+            // console.log(community)
+
+            var a_strong = document.createElement('a')
+            a_strong.classList.add('d-flex','flex-column')
+            a_strong.setAttribute('onclick', 'saveURLInStorage(this)')
+            a_strong.href = "./community.html"
+            a_strong.setAttribute('URL', "http://localhost:8080/community/" + communityMiniDTO[0].communityId)
+
             var strong = document.createElement('strong')
             strong.classList.add('community-title', 'text-center', 'text-success', 'd-inline-block', 'mb-1', 'p-1')
-            var communityMiniDTO = community.communityMiniDTO
             strong.textContent = communityMiniDTO[0].communityTitle
-            div.appendChild(strong)
+            a_strong.appendChild(strong)
+            div.appendChild(a_strong)
+
             var innerDiv = document.createElement('div')
             innerDiv.classList.add('d-flex')
+
             var community_Articles = document.createElement('div')
             community_Articles.classList.add('community-articles', 'col')
 
@@ -135,7 +147,7 @@
               var article_a = document.createElement('a')
               article_a.classList.add('mb-0', 'article-title')
               article_a.setAttribute('onclick', 'saveURLInStorage(this)')
-              article_a.href = "./showArticle.html"
+              article_a.href = "./community-article.html"
               article_a.setAttribute('URL', "localhost:8080/community/" + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId)
               article_a.textContent = articleMiniDTO.articleTitle + "  "
               var cnt_span = document.createElement('span')

@@ -105,25 +105,12 @@
         </div>
       </footer>
 </body>
+<script src="../js/checkJWT.js"></script>
 <script>
     // window.onunload = () =>{
-    
-    // }
-
+      
     //get Article
     window.onload = function () {
-      //JWT 토큰 확인 후 Login 혹은 Username 보여줄지를 판단
-      var JWT = window.localStorage.getItem("Authorization")
-      if (JWT != null){
-        $("ul.logins-hide").hide()
-        var username = window.localStorage.getItem("username");
-        if (username != null){
-          $("#inner-Text-profile").text(username)
-        }
-      }else{
-        $("ul.nonLogins-hide").hide()
-      }
-
       var url = "http://" + window.localStorage.getItem("URL")
       if (url == null){
         //page not found.html 만들어서 제공 - 잘못된 요청입니다.
@@ -245,31 +232,34 @@
 </script>
 <script>
   function sendFormData(){
-          var form_btn = document.querySelector('.form-btn')
-          //임시 값
-          var data = {
-            'originNo' : "false",
-            'description' : $('textarea#comment-form').val()
-          }
-          console.log("click")
-          var URL = "http://" + window.localStorage.getItem('URL') + "/comments"
-          $.ajax({
-            url: URL,
-            data: JSON.stringify(data),
-            type: 'POST',
-            beforeSend : function(xhr){
-              xhr.setRequestHeader("Content-Type", "application/json");
-              xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
-            },
-            error: function(xhr, status, error) {
-              console.log(status)
-              console.log("ajax error 발생")
-            }, 
-            success: function(xhr){
-              // console.log(xhr.response)
-              location.reload(true)
+          var username = window.localStorage.getItem('username')
+          if(username === null){
+            alert("로그인이 필요합니다.")
+          }else{
+            var form_btn = document.querySelector('.form-btn')
+            //임시 값
+            var data = {
+              'originNo' : "false",
+              'description' : $('textarea#comment-form').val()
             }
-          })
+            var URL = "http://" + window.localStorage.getItem('URL') + "/comments"
+            $.ajax({
+              url: URL,
+              data: JSON.stringify(data),
+              type: 'POST',
+              beforeSend : function(xhr){
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+              },
+              error: function(xhr, status, error) {
+                alert("error 발생")
+              }, 
+              success: function(xhr){
+                // console.log(xhr.response)
+                location.reload(true)
+              }
+            })
+          }          
         }
 </script>
 </html>
