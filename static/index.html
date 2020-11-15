@@ -148,7 +148,7 @@
               article_a.classList.add('mb-0', 'article-title')
               article_a.setAttribute('onclick', 'saveURLInStorage(this)')
               article_a.href = "./community-article.html"
-              article_a.setAttribute('URL', "localhost:8080/community/" + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId)
+              article_a.setAttribute('URL', "http://localhost:8080/community/" + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId)
               article_a.textContent = articleMiniDTO.articleTitle + "  "
               var cnt_span = document.createElement('span')
               cnt_span.classList.add('mb-2', 'article-count-p')

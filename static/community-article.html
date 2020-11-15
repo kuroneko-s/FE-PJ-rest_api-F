@@ -111,13 +111,18 @@
       
     //get Article
     window.onload = function () {
-      var url = "http://" + window.localStorage.getItem("URL")
+      var next_url = window.localStorage.getItem("next-URL")
+      var url = window.localStorage.getItem("URL")
       if (url == null){
         //page not found.html 만들어서 제공 - 잘못된 요청입니다.
         console.log("URL is null")
         window.href = "#"
       }
-      // console.log(url)
+
+      if (next_url != null){
+        url = next_url
+      }
+      
       fetch(url)
       .then(function(response){
         return response.json();

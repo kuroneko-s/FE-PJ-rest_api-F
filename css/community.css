@@ -1,3 +1,13 @@
+body > .nav{
+    background-color: #f5f5f5;
+}
+    
+main > .container {
+    padding: 28px 15px 0;
+    width: auto;
+    overflow: scroll;
+}
+
 .footer {
     align-items: center;
     background-color: #f5f5f5;
@@ -9,12 +19,21 @@
     right: 2rem;
 }
 
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
 .div-border{
     border: 1px solid black;
 }
 
 thead{
     width: 100%;
+}
+
+td{
+    font-size: 14px;
 }
 
 #number{
@@ -67,4 +86,22 @@ thead{
 
 .text-center{
     font-size: 13px;
+}
+
+a{
+    color : black
+}
+a:visited{
+    opacity: .2;
+    color: #00908D;
+}
+a:hover{
+    color : #00908D;
+    border: 1px solid rgba(0,0,0, .3); 
+    border-radius: 8%;
+}
+.btn-now{
+    color : #00908D;
+    border: 1px solid rgba(0,0,0, .3); 
+    border-radius: 8%;
 }

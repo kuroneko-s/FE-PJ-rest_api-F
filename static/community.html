@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community</title>
 
-    <link rel="stylesheet" href="../css/community.css"/>
-    <link rel="stylesheet" href="../css/index.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jdenticon@3.0.1" async></script>
+
+    <link rel="stylesheet" href="../css/community.css"/>
     
     <!-- 외부에서 첨부-->
     <script src="../pkg/css-element-queries-1.2.1/src/ResizeSensor.js"></script>
@@ -58,7 +58,7 @@
 
       <main role="main" class="flex-shrink-0">
         <div class="container">
-          <h1 class="mb-3 community-title">Community Site</h1>
+          <h1 class="mb-3 pl-0 community-title col-md-6"></h1>
           <div class="best-articles d-flex justify-content-center align-items-center div-border">
             <div class="col-md-6 div-border">
               <P>test</P>
@@ -93,6 +93,10 @@
             </tbody>
           </table>
         </div>
+
+        <div class="page-nav d-flex align-items-center justify-content-center">
+          
+        </div>
       </main>
       
       <footer class="footer py-3 mt-5">
@@ -105,10 +109,19 @@
 <script>
   var URL = window.localStorage.getItem("URL")
   let CATE = window.localStorage.getItem("CATE")
-  //best 부분과 main-articles부분 처리
+  var index = URL.indexOf('page')
 
-  if (CATE != null){
+  //best 부분과 main-articles부분 처리
+  if(index != -1 && CATE != null){
+    URL = URL.slice(0, index) + "cate=" + CATE + "&" + URL.slice(index)
+  }else if (CATE != null){
     URL = URL + "?cate=" + CATE
+  }
+
+  function titleClick(a){
+    localStorage.removeItem("CATE")
+    localStorage.setItem("URL", a.getAttribute("URL"))
+    location.reload()
   }
 
   window.onload = function(){
@@ -125,6 +138,14 @@
       if(myJson == null){
         alert("response is null")
       }
+
+      let selfURL = myJson._links.self.href
+      var title = document.querySelector('.community-title')
+
+      title.textContent = myJson._embedded.articleDTOByMainPageList[0].communityName
+      title.setAttribute('onclick', 'titleClick(this)')
+      title.setAttribute('URL', selfURL)
+      title.style.cursor = 'pointer'
 
       let length = myJson._embedded.articleDTOByMainPageList.length
       let tbody = document.querySelector('.main-articles')
@@ -145,15 +166,15 @@
         division.textContent = body.division
         division.setAttribute('onclick', "addCate(this)")
         division.style.cursor = 'pointer'
-        division.setAttribute('next-URL', myJson._links.self.href)
+        division.setAttribute('next-URL', selfURL)
         division.setAttribute('cate', body.division)
         tr.appendChild(division)
 
         var title = document.createElement('td')
         title.textContent = body.title
-        title.setAttribute('onclick', "null(this)")
+        title.setAttribute('onclick', "moveArticle(this)")
         title.style.cursor = 'pointer'
-        title.setAttribute('next-URL', myJson._links.create_Article_In_Community.href + body.id)
+        title.setAttribute('next-URL', myJson._links.create_Article_In_Community.href + "/" + body.id)
         tr.appendChild(title)
 
         var writer = document.createElement('td')
@@ -175,7 +196,54 @@
         tr.appendChild(date)
         tbody.appendChild(tr)
       }
+      
+      let now = myJson.page.number
+      let pageInElements = myJson.page.size
+      let totalElements = myJson.page.totlaElements
+      let totalPage = myJson.page.totalPages
+      var cnt = 0;
+      var minus = -2;
+
+      //5 page 씩 보여줄 예정
+      let pageNav = document.querySelector('.page-nav')
+      var first = document.createElement('a')
+      first.textContent = "<<"
+      first.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
+      first.setAttribute("onclick", "addURL(this)")
+      first.setAttribute("URL", myJson._links.first.href )
+      pageNav.appendChild(first)
+
+      for(var i = 1; i <= 5; i++){
+        var pageBtn = document.createElement('a')
+        pageBtn.textContent = now + i
+        pageBtn.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
+        pageBtn.setAttribute("onclick", "addURL(this)")
+        pageBtn.setAttribute("URL", selfURL + "?page=" + (now + i - 1) + "&size=20&sort=createTime,desc")
+        pageNav.appendChild(pageBtn)
+        if(i === 1){
+          pageBtn.classList.add('btn-now')
+        }
+
+        if(now + i === totalPage){
+          break;
+        }
+      } 
+
+      var last = document.createElement('a')
+      last.textContent = ">>"
+      last.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
+      last.setAttribute("onclick", "addURL(this)")
+      last.setAttribute("URL", myJson._links.last.href)
+      pageNav.appendChild(last)
+
     })
+  }
+</script>
+<script>
+  function addURL(a){
+    var URL = a.getAttribute("URL")
+    window.localStorage.setItem("URL", URL)
+    location.reload()
   }
 </script>
 <script>
@@ -201,24 +269,32 @@
     window.location.reload()
   }
 </script>
-
 <script>
   window.onpageshow = function(event){
     if (performance.navigation.type == 1) {
       //새로고침
-      console.info( "This page is reloaded" );
+      // console.info( "This page is reloaded" );
     } else {
       //새로고침 아님
-      console.info( "This page is not reloaded");
+      // console.info( "This page is not reloaded");
       if(event.persisted || (window.performance && window.performance.navigation.type == 2)){
-        console.log("복원")
+        // console.log("복원")
       }else{
-        console.log("새로 열린 페이지")
+        // console.log("새로 열린 페이지")
         window.localStorage.removeItem('next-URL')
         window.localStorage.removeItem('CATE')
         location.reload()
       }
     }
+  }
+</script>
+<script>
+  function moveArticle(td){
+    var URL = td.getAttribute('next-URL')
+    console.log(URL)
+    localStorage.setItem('next-URL', URL)
+    alert("wait")
+    location.href = './community-article.html'
   }
 </script>
 </html>
