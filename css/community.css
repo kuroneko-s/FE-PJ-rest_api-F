@@ -91,11 +91,11 @@ td{
 a{
     color : black
 }
-a:visited{
+.page-nav > a:visited{
     opacity: .2;
     color: #00908D;
 }
-a:hover{
+.page-nav > a:hover{
     color : #00908D;
     border: 1px solid rgba(0,0,0, .3); 
     border-radius: 8%;

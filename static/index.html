@@ -47,7 +47,6 @@
           <ul class="ml-3 mr-2 navbar-nav nonLogins-hide">
             <li class="nav-item">
               <a class="nav-link profile" href="./profile.html" id="inner-Text-profile">
-                </span>
               </a>
             </li>
           </ul>
@@ -71,57 +70,56 @@
       </footer>
 </body>
 <script>
-    // window.onunload = () =>{
-    //   window.localStorage.clear()
-    // }
- 
-    //set Profile name from server  
-    $(document).ready(function(){
+    window.onload = function () {
+      //set Profile name from server  
       var JWT = window.localStorage.getItem("Authorization")
       if (JWT != null){
         $("ul.logins-hide").hide()
         var username = window.localStorage.getItem("username")
-        if(username === null){
-          var http = new XMLHttpRequest();
-          var url = "http://localhost:8080/accounts"
-          var data = window.localStorage.getItem("email")
 
-          http.open("GET", url + "?" + "email=" + data, true)
-          http.setRequestHeader("Accept", "application/json")
-          http.onloadend = function() {
-            var jsonBody = http.response
-            var jsonObj = JSON.parse(jsonBody)
-            // console.log(jsonObj.username)
-            window.localStorage.setItem("username", jsonObj.username)
-            $("#inner-Text-profile").text(jsonObj.username)
-          }
-          http.send(null)
-        }else{
+        if(username != null){
           $("#inner-Text-profile").text(username)
+        }else{
+          let URL = "http://localhost:8080/accounts"
+          var http = new XMLHttpRequest();
+          var data = window.localStorage.getItem("email")
+          console.log("URL" + URL)
+          console.log("data" + data)
+
+          fetch(URL + "?email=" + data)
+          .then(function(response){
+            return response.json()
+          })
+          .then(function(myJson){
+            console.log(myJson)
+            // console.log(jsonObj.username)
+            if(myJson.username != null){
+              window.localStorage.setItem("username", myJson.username)
+              $("#inner-Text-profile").text(myJson.username)  
+            }
+          })
         }
       }else{
         $("ul.nonLogins-hide").hide()
       }
-    })
-    
-    //get Communit
-    window.onload = function () {
+
+      //get Communit
       var http = new XMLHttpRequest();
-      var url = "http://localhost:8080/"
-      http.open("GET", url, true)
-      http.setRequestHeader("Accept", "application/HAL+JSON")
-      http.onloadend = function(){
-        if (http.response != null){
-          var jsonObj = JSON.parse(http.response) //JSON Parsing
-          var community_cnt = jsonObj.testDTO.length
+      let URL = "http://localhost:8080/"
+      fetch(URL)
+      .then(function(response){
+        return response.json()
+      })
+      .then(function(myJson){
+        if (myJson != null){
+          var community_cnt = myJson.testDTO.length
           var community_box = document.querySelector('.community-box')
-          for(var i = jsonObj.testDTO.length - 1; i >= 0 ; i--){
-            var community = jsonObj.testDTO[i]
+          for(var i = myJson.testDTO.length - 1; i >= 0 ; i--){
+            var community = myJson.testDTO[i]
             var communityMiniDTO = community.communityMiniDTO
+
             var div = document.createElement('div')
             div.classList.add('col-md-6','p-2','d-flex','flex-column', 'position-static', 'shadow', 'community')
-            
-            // console.log(community)
 
             var a_strong = document.createElement('a')
             a_strong.classList.add('d-flex','flex-column')
@@ -132,6 +130,7 @@
             var strong = document.createElement('strong')
             strong.classList.add('community-title', 'text-center', 'text-success', 'd-inline-block', 'mb-1', 'p-1')
             strong.textContent = communityMiniDTO[0].communityTitle
+
             a_strong.appendChild(strong)
             div.appendChild(a_strong)
 
@@ -150,10 +149,12 @@
               article_a.href = "./community-article.html"
               article_a.setAttribute('URL', "http://localhost:8080/community/" + communityMiniDTO[0].communityId + "/article/" +  articleMiniDTO.articleId)
               article_a.textContent = articleMiniDTO.articleTitle + "  "
+
               var cnt_span = document.createElement('span')
               cnt_span.classList.add('mb-2', 'article-count-p')
               cnt_span.textContent = "[" + articleMiniDTO.commentsCount + "]"
               cnt_span.style.color = "blue"
+
               article_a.appendChild(cnt_span)
               article_p.appendChild(article_a)
               community_Articles.appendChild(article_p)
@@ -164,14 +165,15 @@
             community_box.appendChild(div)
           }
         }else{
-          console.log("communies is null")
+          alert("communites is null")
         }
-      }
+      })
 
-      http.send(null)
+
     }
-
-    function saveURLInStorage(a){
+</script>
+<script>
+  function saveURLInStorage(a){
       var URL = window.localStorage.getItem("URL")
       if(URL != null){
         window.localStorage.removeItem("URL")
@@ -179,9 +181,10 @@
 
       window.localStorage.setItem("URL", a.getAttribute("url"))
     }
-
-    // Article 제목 크기의 동적 처리
-    new ResizeSensor(jQuery('.community-articles'), function() {
+</script>
+<script>
+  // Article 제목 크기의 동적 처리
+  new ResizeSensor(jQuery('.community-articles'), function() {
       var div = document.querySelector('.community-articles')
       var width =  div.clientWidth
       var aList = document.querySelectorAll('.article-title')
@@ -196,7 +199,5 @@
       console.log(width)
       console.log(width - width/10)
     })
-
-
 </script>
 </html>

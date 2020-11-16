@@ -118,12 +118,6 @@
     URL = URL + "?cate=" + CATE
   }
 
-  function titleClick(a){
-    localStorage.removeItem("CATE")
-    localStorage.setItem("URL", a.getAttribute("URL"))
-    location.reload()
-  }
-
   window.onload = function(){
     fetch(URL)
     .then(function(response){
@@ -281,7 +275,8 @@
         // console.log("복원")
       }else{
         // console.log("새로 열린 페이지")
-        window.localStorage.removeItem('next-URL')
+        // alert("새로 열린 페이지")
+        // window.localStorage.removeItem('next-URL')
         window.localStorage.removeItem('CATE')
         location.reload()
       }
@@ -293,8 +288,15 @@
     var URL = td.getAttribute('next-URL')
     console.log(URL)
     localStorage.setItem('next-URL', URL)
-    alert("wait")
+    // alert("wait")
     location.href = './community-article.html'
+  }
+</script>
+<script>
+  function titleClick(a){
+    localStorage.removeItem("CATE")
+    localStorage.setItem("URL", a.getAttribute("URL"))
+    location.reload()
   }
 </script>
 </html>
