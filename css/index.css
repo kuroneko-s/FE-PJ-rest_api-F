@@ -44,12 +44,12 @@ h-100{
     color: black !important;
 }
 
-.community-articles > a{
+/* .community-articles > a{
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
+} */
 
 .community{
     height: 270px;

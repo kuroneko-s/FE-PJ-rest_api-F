@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Article</title>
 
     <link rel="stylesheet" href="../css/article.css"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jdenticon@3.0.1" async></script>
-    
-    <!-- 외부에서 첨부-->
-    <script src="../pkg/css-element-queries-1.2.1/src/ResizeSensor.js"></script>
-    <script src="../pkg/css-element-queries-1.2.1/src/ElementQueries.js"></script>
 </head>
 
 <body>
@@ -48,7 +45,6 @@
           <ul class="ml-3 mr-2 navbar-nav nonLogins-hide">
             <li class="nav-item">
               <a class="nav-link profile" href="./profile.html" id="inner-Text-profile">
-                </span>
               </a>
             </li>
           </ul>
@@ -57,7 +53,7 @@
 
       <main role="main" class="flex-shrink-0">
         <div class="container">
-          <h1 class="mb-3 community-title col-md-5"></h1>
+          <h1 class="mb-3 community-title col-md-8"></h1>
           <div class="d-flex justify-content-end pr-3 pb-1">
             <button type="button" class="article-btn btn btn-primary btn-write">글쓰기</button>
             <button type="button" class="article-btn btn btn-primary mr-2 btn-modify">수정</button>
@@ -74,13 +70,21 @@
 
           <div class="col-md-12 community-article">
             <div class="mb-1 article-title" style="border: 0.5px solid gray;">
-              <p class="ml-1 mt-2 mb-2 article-title-p">Test Title</p>
+              <p class="ml-1 mt-2 mb-2">
+                제목 - <span class="article-title-p"></span>
+              </p>
             </div>
             <div class="mb-1 article-source" style="border: 0.5px solid gray;">
-              <p class="ml-1 mt-2 mb-2 article-source-p">Test Source</p>
+              <p class="ml-1 mt-2 mb-2">
+                출처 - <span class="article-source-p"></span>
+              </p>
             </div>
             <div class="mb-1 article-description" style="border: 0.5px solid gray;">
               <p class="ml-1 mt-2 mb-2 article-description-p">Test Description</p>
+              <div class="d-flex justify-content-center mb-2">
+                <button class="mr-3 btn btn-light opinion opinion-agree" onclick="agreeBtn()" type="button"></button>
+                <button class="btn btn-dark opinion opinion-disagree" onclick="disagreeBtn()" type="button"></button>
+              </div>
             </div>
           </div>
           
@@ -102,28 +106,19 @@
 <script>
     //get Article
     window.onload = function () {
-      var next_url = window.localStorage.getItem("next-URL")
-      var url = window.localStorage.getItem("URL")
-      if (url == null){
-        //page not found.html 만들어서 제공 - 잘못된 요청입니다.
-        console.log("URL is null")
-        window.href = "#"
-      }
-
-      if (next_url != null){
-        url = next_url
-      }
-      
-      fetch(url)
+      var URL = window.localStorage.getItem("Article-URL")
+      window.localStorage.setItem("Community-URL", URL.split('/article')[0])
+            
+      fetch(URL)
       .then(function(response){
         return response.json();
       })
       .then(function(myJson){
         //Article 내용 작성
+        let selfURL = myJson._links.Community_Site.href
         var community_title = document.querySelector('.community-title')
         community_title.textContent = myJson.communityTitle
         community_title.setAttribute('onclick', 'titleClick(this)')
-        community_title.setAttribute('URL', myJson._links.Community_Site.href)
         community_title.style.cursor = 'pointer'
 
         var title_p = document.querySelector('.article-title-p')
@@ -131,19 +126,35 @@
 
         if(myJson.source != null){
           var source_p = document.querySelector('.article-source-p')
-          source_p.textContent = myJson.source
+          var sourceLink = document.createElement('a')
+          sourceLink.textContent = myJson.source
+          sourceLink.href = myJson.source
+          source_p.appendChild(sourceLink)
         }
 
         var description_p = document.querySelector('.article-description-p')
-        description_p.textContent = myJson.description
+        description_p.textContent = ""
+        $('.article-description-p').append(myJson.description)
         description_p.style.minHeight = "350px"
 
-        //username과 localStorage의 name을 확인 후 btn 활성화 여부 판단
+        //username과 localStorage의 name을 확인 후 btn 활성화
         if(myJson.userName !== window.localStorage.getItem("username")){
           $('.btn-modify').hide()
           $('.btn-delete').hide()
         }else{
           $('.btn-write').addClass('mr-2')
+          //delete 구현
+          var delete_btn = document.querySelector('.btn-delete')
+          delete_btn.setAttribute('onclick', 'deleteArticle(this)')
+          delete_btn.setAttribute('Delete-URL', "/article/" + myJson.id)
+
+          var create_btn = document.querySelector('.btn-write')
+          create_btn.setAttribute('onclick', 'createArticle(this)')
+          create_btn.setAttribute('CreateArticle-URL', "/article")
+
+          var update_btn = document.querySelector('.btn-modify')
+          update_btn.setAttribute('onclick', 'updateArticle(this)')
+          update_btn.setAttribute('UpdateArticle-URL', "/article/" + myJson.id)
         }
 
         //comment 추가
@@ -162,31 +173,50 @@
           var profile = document.createElement('div')
           profile.classList.add('col-3', 'comment-profile', 'd-flex', 'align-items-center')
           profile.style.backgroundColor = '#F4F4F4'
-          profile.style.height = '75px'
-
-          // console.log(myJson.comments[c])
-          // console.log(comment.accountUsername)
 
           var comment_profile = document.createElement('p')
           comment_profile.classList.add('mb-1')
           comment_profile.textContent = comment.accountUsername
-
+          
           profile.appendChild(comment_profile)
 
           var description = document.createElement('div')
-          description.classList.add('col-9', 'comment-description', 'd-flex', 'align-items-center')
+          description.classList.add('col-8', 'comment-description', 'd-flex', 'align-items-center')
           description.style.backgroundColor = '#FFFFFF'
-          description.style.height = '75px'
 
           var comment_description = document.createElement('p')
           comment_description.classList.add('mb-1')
           comment_description.textContent = comment.description
 
+          var btnDiv = document.createElement('div')
+          btnDiv.classList.add("d-flex", "flex-column", "col-1", "opinion-comment-div", "align-items-end")
+
+          var agree = document.createElement('button')
+          agree.type = 'button'
+          agree.classList.add("mb-1", "btn", "btn-light", "opinion-comment", "opinion-comment-agree-" + c)
+          agree.setAttribute('onclick', "agreeCommentBtn(this)")
+          agree.setAttribute('opinion', "/comments/" + comment.number)
+          agree.setAttribute('target', c)
+          
+          var disagree = document.createElement('button')
+          disagree.type = 'button'
+          disagree.classList.add("btn", "btn-dark", "opinion-comment", "opinion-comment-disagree-" + c)
+          disagree.setAttribute('onclick', "disagreeCommentBtn(this)")
+          disagree.setAttribute('opinion', "/comments/" + comment.number)
+          disagree.setAttribute('target', c)
+          
+          btnDiv.appendChild(agree)
+          btnDiv.appendChild(disagree)
+
           description.appendChild(comment_description)
           article_comment.appendChild(profile)
           article_comment.appendChild(description)
+          article_comment.appendChild(btnDiv)
           parent_article_comment.appendChild(article_comment)
+          $(".opinion-comment-agree-" + c).append("<i class=\"far fa-thumbs-up\"></i> " + comment.agree)
+          $(".opinion-comment-disagree-" + c).append("<i class=\"far fa-thumbs-down\"></i> " + comment.disagree)
         }
+        
 
         // TODO click시 form 전송 및 컨트롤러 작성
         var form_comment = document.createElement('form')
@@ -218,6 +248,12 @@
         form_comment.appendChild(form_InputText)
         form_comment.appendChild(form_btn)
         parent_article_comment.appendChild(form_comment)
+
+
+        var btnAgree = document.querySelector('.opinion-agree')
+        var btnDisagree = document.querySelector('.opinion-disagree')
+        btnAgree.textContent = "추천 " + myJson.agree
+        btnDisagree.textContent = "비추천 " + myJson.disagree
       })
 
       //작성글의 작성자 프로필
@@ -226,8 +262,6 @@
       profile_usericon.setAttribute("data-jdenticon-value", testUsername)
       var profile_username = document.querySelector('.profile-username')
       profile_username.textContent = testUsername
-
-
     }
 </script>
 <script>
@@ -265,8 +299,151 @@
 <script>
   function titleClick(a){
     localStorage.removeItem("CATE")
-    localStorage.setItem("URL", a.getAttribute("URL"))
     location.href = "./community.html"
+  }
+</script>
+<script>
+  function deleteArticle(v){
+    var URL = localStorage.getItem('Community-URL') + v.getAttribute('Delete-URL')
+    if(URL != null){
+      var con = confirm("정말로 삭제하시겠습니까?")
+      console.log(URL)
+      if (con){
+        $.ajax({
+          url: URL,
+          type: 'DELETE',
+          beforeSend: function(xhr){
+            xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+          },
+          error: function(xhr, status, error){
+            alert("삭제 도중 오류가 발생하였습니다.")
+          },
+          success: function(xhr){
+            window.localStorage.removeItem('Delete-URL')
+            alert("삭제되었습니다.")
+            location.href = "./community.html"
+          }
+        })
+      }else{
+        alert("취소 되었습니다.")
+      }
+    }else{
+      alert("잘못된 요청입니다.")
+    }
+  }
+</script>
+<script>
+  function createArticle(v){
+    window.localStorage.setItem('CreateArticle-URL', localStorage.getItem('Community-URL') + v.getAttribute('CreateArticle-URL'))
+    location.href = './createArticle.html'
+  }
+</script>
+<script>
+  function updateArticle(v){
+    window.localStorage.setItem('UpdateArticle-URL', localStorage.getItem('Community-URL') + v.getAttribute('UpdateArticle-URL'))
+    //href 추가
+  }
+</script>
+<script>
+  function agreeBtn(){
+    var URL = localStorage.getItem("Article-URL") + "/opinion"
+    console.log(URL)
+    $.ajax({
+      url: URL,
+      data: JSON.stringify(true),
+      type: 'PUT',
+      beforeSend: function(xhr){
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+      },
+      error: function(xhr, error){
+        if(xhr.status === 400){
+          alert("이미 추천 하셨습니다.")
+        }
+      },
+      success: function(xhr){
+        console.log(xhr)
+        alert("추천되었습니다.")
+        $('.opinion-agree').text("추천 " + xhr.agree)
+        $('.opinion-disagree').text("비추천 " + xhr.disagree)
+      }
+    })
+  }
+</script>
+<script>
+  function disagreeBtn(){
+    var URL = localStorage.getItem("Article-URL") + "/opinion"
+    $.ajax({
+      url: URL,
+      data: JSON.stringify(false),
+      type: 'PUT',
+      beforeSend: function(xhr){
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+      },
+      error: function(xhr, error){
+        if(xhr.status === 400){
+          alert("이미 비추천 하셨습니다.")
+        }
+      },
+      success: function(xhr){
+        console.log(xhr)
+        alert("비추천되었습니다.")
+        $('.opinion-agree').text("추천 " + xhr.agree)
+        $('.opinion-disagree').text("비추천 " + xhr.disagree)
+      }
+    })
+  }
+</script>
+<script>
+  function agreeCommentBtn(v){
+    var URL = localStorage.getItem("Article-URL") + v.getAttribute('opinion') + "/opinion"
+    $.ajax({
+      url: URL,
+      data: JSON.stringify(true),
+      type: 'PUT',
+      beforeSend: function(xhr){
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+      },
+      error: function(xhr, error){
+        if(xhr.status === 400){
+          alert("이미 추천 하셨습니다.")
+        }
+      },
+      success: function(xhr){
+        console.log(xhr)
+        alert("추천되었습니다.")
+        $('.opinion-comment-agree-' + v.getAttribute('target')).html("<i class=\"far fa-thumbs-up\"></i> " + xhr.agree)
+        $('.opinion-comment-disagree' + v.getAttribute('target')).html("<i class=\"far fa-thumbs-down\"></i> " + xhr.disagree)
+      }
+    })
+  }
+</script>
+<script>
+  function disagreeCommentBtn(v){
+    var URL = localStorage.getItem("Article-URL") + v.getAttribute('opinion') + "/opinion"
+    console.log(URL)
+    $.ajax({
+      url: URL,
+      data: JSON.stringify(false),
+      type: 'PUT',
+      beforeSend: function(xhr){
+        xhr.setRequestHeader("Content-Type", "application/json")
+        xhr.setRequestHeader("Authorization", window.localStorage.getItem('Authorization').split(" ")[1])
+      },
+      error: function(xhr, error){
+        if(xhr.status === 400){
+          alert("이미 비추천 하셨습니다.")
+        }
+      },
+      success: function(xhr){
+        console.log(xhr)
+        alert("비추천되었습니다.")
+        $('.opinion-comment-agree-' + v.getAttribute('target')).html("<i class=\"far fa-thumbs-up\"></i> " + xhr.agree)
+        $('.opinion-comment-disagree' + v.getAttribute('target')).html("<i class=\"far fa-thumbs-down\"></i> " + xhr.disagree)
+      }
+    })
   }
 </script>
 </html>

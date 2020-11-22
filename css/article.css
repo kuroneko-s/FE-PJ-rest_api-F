@@ -8,12 +8,55 @@ main > .container {
     overflow: scroll;
 }
 
+.opinion{
+    min-width: 96px;
+    width: 48px;
+    max-width: 96px;
+    min-height: 48px;
+    height: 24px;
+    max-height: 48px;
+}
+
+.profile > 
+    a:hover,
+    a:active,   
+    a:link{
+    color: black! important;
+}
+
 .article-btn{
     font-size: 0.75rem;
 }
 
+.article-source{
+    min-height: 40px;
+}
+
 .article-comment{
     border: 0.5px solid gray;
+    min-height: 75px;
+}
+
+.comment-profile,
+.comment-description{
+    min-height: 75px;
+}
+
+.opinion-comment-div{
+    padding-right: 5px! important;
+}
+
+.opinion-comment{
+    min-width: 65px;
+    width: 65px;
+    max-width: 65px;
+    min-height: 45px;
+    height: 45px;
+    max-height: 45px;
+}
+
+.opinion-comment-disagree{
+    margin-bottom: 3px;
 }
 
 .footer {

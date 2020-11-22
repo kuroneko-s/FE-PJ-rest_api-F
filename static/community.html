@@ -49,7 +49,6 @@
           <ul class="ml-3 mr-2 navbar-nav nonLogins-hide">
             <li class="nav-item">
               <a class="nav-link profile" href="./profile.html" id="inner-Text-profile">
-                </span>
               </a>
             </li>
           </ul>
@@ -58,22 +57,18 @@
 
       <main role="main" class="flex-shrink-0">
         <div class="container">
-          <h1 class="mb-3 pl-0 community-title col-md-6"></h1>
-          <div class="best-articles d-flex justify-content-center align-items-center div-border">
-            <div class="col-md-6 div-border">
-              <P>test</P>
-              <P>test</P>
-              <P>test</P>
-              <P>test</P>
+          <h1 class="mb-3 pl-0 community-title col-md-8"></h1>
+          <div class="articles-Div col-md-7">
+            <div>
+              <p class="best-title">베스트</p>
             </div>
-            <div class="col-md-6 div-border">
-              <P>test</P>
-              <P>test</P>
-              <P>test</P>
-              <P>test</P>
+            <div class="best-articles d-flex justify-content-center align-items-center div-border">
+              <div class="col-md-6 div-border div-border-first">
+              </div>
+              <div class="col-md-6 div-border div-border-second">
+              </div>
             </div>
           </div>
-
           <div class="mt-2 pr-3 pb-2">
             <button type="button" class="article-btn btn btn-primary btn-write">글쓰기</button>
           </div>
@@ -107,13 +102,14 @@
 </body>
 <script src="../js/checkJWT.js"></script>
 <script>
-  var URL = window.localStorage.getItem("URL")
+  var URL = window.localStorage.getItem("Community-URL")
   let CATE = window.localStorage.getItem("CATE")
-  var index = URL.indexOf('page')
-
+  var PageURL = window.localStorage.getItem('Page-URL')
+  
   //best 부분과 main-articles부분 처리
-  if(index != -1 && CATE != null){
-    URL = URL.slice(0, index) + "cate=" + CATE + "&" + URL.slice(index)
+  if(PageURL != null && CATE != null){
+    var index = PageURL.indexOf('page')
+    URL = PageURL.slice(0, index) + "cate=" + CATE + "&" + PageURL.slice(index)
   }else if (CATE != null){
     URL = URL + "?cate=" + CATE
   }
@@ -125,10 +121,6 @@
     })
     .then(function(myJson){
       // main-articles 처리
-      // console.log("articleDTOList - " + myJson._embedded.articleDTOByMainPageList[0].number)
-      // console.log("links - " + myJson._links.first.href)
-      // console.log("page - ", myJson.page)
-      // console.log(JSON.stringify(myJson))
       if(myJson == null){
         alert("response is null")
       }
@@ -138,7 +130,6 @@
 
       title.textContent = myJson._embedded.articleDTOByMainPageList[0].communityName
       title.setAttribute('onclick', 'titleClick(this)')
-      title.setAttribute('URL', selfURL)
       title.style.cursor = 'pointer'
 
       let length = myJson._embedded.articleDTOByMainPageList.length
@@ -159,23 +150,22 @@
         var division = document.createElement('td')
         division.textContent = body.division
         division.setAttribute('onclick', "addCate(this)")
-        division.style.cursor = 'pointer'
-        division.setAttribute('next-URL', selfURL)
         division.setAttribute('cate', body.division)
+        division.style.cursor = 'pointer'
         tr.appendChild(division)
 
         var title = document.createElement('td')
         title.textContent = body.title
         title.setAttribute('onclick', "moveArticle(this)")
+        title.setAttribute('Article-URL', "/article/" + body.id)
         title.style.cursor = 'pointer'
-        title.setAttribute('next-URL', myJson._links.create_Article_In_Community.href + "/" + body.id)
         tr.appendChild(title)
 
         var writer = document.createElement('td')
         writer.textContent = body.accountUsername
         writer.setAttribute('onclick', "null(this)")
+        writer.setAttribute('Profile-URL', 'http://localhost:8080/accounts/' + body.accountId)
         writer.style.cursor = 'pointer'
-        writer.setAttribute('next-URL', 'http://localhost:8080/accounts/' + body.accountId)
         tr.appendChild(writer)
 
 
@@ -184,7 +174,7 @@
         if(now_date === createDate){
           date.textContent = body.createTime.substr(11,8)
         }else{
-          date.textContent = now_month + "-" + now_date
+          date.textContent = body.createTime.substr(5,5)
         }
 
         tr.appendChild(date)
@@ -203,16 +193,16 @@
       var first = document.createElement('a')
       first.textContent = "<<"
       first.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
-      first.setAttribute("onclick", "addURL(this)")
-      first.setAttribute("URL", myJson._links.first.href )
+      first.setAttribute("onclick", "addPageBtnURL(this)")
+      first.setAttribute("Page-URL", myJson._links.first.href )
       pageNav.appendChild(first)
 
       for(var i = 1; i <= 5; i++){
         var pageBtn = document.createElement('a')
         pageBtn.textContent = now + i
         pageBtn.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
-        pageBtn.setAttribute("onclick", "addURL(this)")
-        pageBtn.setAttribute("URL", selfURL + "?page=" + (now + i - 1) + "&size=20&sort=createTime,desc")
+        pageBtn.setAttribute("onclick", "addPageBtnURL(this)")
+        pageBtn.setAttribute("Page-URL", selfURL + "?page=" + (now + i - 1) + "&size=20&sort=createTime,desc")
         pageNav.appendChild(pageBtn)
         if(i === 1){
           pageBtn.classList.add('btn-now')
@@ -226,23 +216,68 @@
       var last = document.createElement('a')
       last.textContent = ">>"
       last.classList.add('page-btn', 'pl-2', 'pr-2', 'mt-3', 'mr-2')
-      last.setAttribute("onclick", "addURL(this)")
-      last.setAttribute("URL", myJson._links.last.href)
+      last.setAttribute("onclick", "addPageBtnURL(this)")
+      last.setAttribute("Page-URL", myJson._links.last.href)
       pageNav.appendChild(last)
 
+      if(localStorage.getItem('username') != null && localStorage.getItem('Authorization') != null){
+        var create_btn = document.querySelector('.btn-write')
+        create_btn.setAttribute('onclick', 'createArticle(this)')
+        create_btn.setAttribute('CreateArticle-URL', "/article")
+      }
+
+    })
+
+    // best 글 작성
+    fetch(localStorage.getItem("Community-URL") + "/best")
+    .then(function(response){
+      return response.json()
+    })
+    .then(function(myJson){
+      //최신이 0번
+      // console.log(myJson)
+      var bestDiv = document.querySelector('.best-articles')
+      var firstDiv = document.querySelector('.div-border-first')
+      var secDiv = document.querySelector('.div-border-second')
+      
+      for(var i = 0; i < myJson.length; i++){
+        var article = myJson[i]
+        var article_p = document.createElement('p')
+        var article_a = document.createElement('a')
+        var cnt_span = document.createElement('span')
+        article_p.classList.add('text-truncate', 'mr-2')
+        article_a.classList.add('mb-0', 'article-best-title', 'text-truncate')
+        article_a.setAttribute('onclick', 'saveBestArticleURL(this)')
+        article_a.setAttribute('BestArticle-URL', "/article/" +  article.id)
+        article_a.href = "./community-article.html"
+        article_a.textContent = article.title + "  "
+
+        cnt_span.classList.add('mb-2', 'article-count-p')
+        cnt_span.textContent = "[" + article.commentCnt + "]"
+        cnt_span.style.color = "blue"
+
+        article_a.appendChild(cnt_span)
+        article_p.appendChild(article_a)
+
+        if(i <= 3){  
+          firstDiv.appendChild(article_p)
+        }else{
+          secDiv.appendChild(article_p)
+        }
+      }
+      
     })
   }
 </script>
 <script>
-  function addURL(a){
-    var URL = a.getAttribute("URL")
-    window.localStorage.setItem("URL", URL)
+  function addPageBtnURL(a){
+    var URL = a.getAttribute("Page-URL")
+    window.localStorage.setItem("Page-URL", URL)
     location.reload()
   }
 </script>
 <script>
   function addCate(d){
-    console.log(d.getAttribute('next-URL'))
     var cate = d.getAttribute('cate')
 
     switch(cate){
@@ -284,19 +319,27 @@
   }
 </script>
 <script>
-  function moveArticle(td){
-    var URL = td.getAttribute('next-URL')
-    console.log(URL)
-    localStorage.setItem('next-URL', URL)
-    // alert("wait")
+  function moveArticle(v){
+    var URL = localStorage.getItem('Community-URL') + v.getAttribute('Article-URL')
+    localStorage.setItem('Article-URL', URL)
     location.href = './community-article.html'
   }
 </script>
 <script>
   function titleClick(a){
     localStorage.removeItem("CATE")
-    localStorage.setItem("URL", a.getAttribute("URL"))
     location.reload()
   }
+</script>
+<script>
+  function createArticle(v){
+    window.localStorage.setItem('CreateArticle-URL', localStorage.getItem('Community-URL') + v.getAttribute('CreateArticle-URL'))
+    location.href = './createArticle.html'
+  }
+</script>
+<script>
+  function saveBestArticleURL(a){
+      window.localStorage.setItem("Article-URL", window.localStorage.getItem("Community-URL") + a.getAttribute("BestArticle-URL"))
+    }
 </script>
 </html>
